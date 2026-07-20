@@ -14,10 +14,10 @@ API, and how to structure a production-shaped FastAPI service.
 
 The Python code follows standard Python convention (snake_case ; see
 [PEP 8](https://peps.python.org/pep-0008/)) throughout the codebase, but
-the actual JSON API request bodies, responses, everything in `/docs` —
+the actual JSON API request bodies, responses, everything in `/docs` 
 uses camelCase (`nameOrig`, `riskScore`, etc.), matching typical JavaScript/
 frontend API conventions. This is handled with Pydantic's `alias_generator`
-(see `app/models/transaction.py`), not by renaming Python variables — a
+(see `app/models/transaction.py`), not by renaming Python variables  a
 Python reviewer sees proper snake_case, an API consumer sees camelCase.
 The API also still accepts snake_case input for backwards compatibility.
 
