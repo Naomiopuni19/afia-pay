@@ -58,7 +58,7 @@ like Vercel which don't fit a service carrying a trained ML model well.
 5. Click **Create Web Service** first deploy takes a few minutes
 6. Once live, your API is reachable at `https://your-service-name.onrender.com`
 7. Visit `https://your-service-name.onrender.com/docs` to confirm it's working
-8. **Update the demo frontend** — open `frontend/index.html`, find the
+8. **Update the demo frontend**  open `frontend/index.html`, find the
    `apiUrl` constant near the top of the `<script>` section, and change it
    from `http://127.0.0.1:8000/api/v1/screen` to your live Render URL
 
