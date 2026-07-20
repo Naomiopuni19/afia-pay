@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Afia Pay — Fraud Screening Console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navyDeep: #0F1B2E;
+    --navyCard: #16243D;
+    --navyLine: #263A5C;
+    --gold: #D4AF6A;
+    --goldBright: #E8C687;
+    --safe: #4A9B7F;
+    --danger: #E2725B;
+    --cream: #F4F1EA;
+    --creamDim: #9AA5B8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--navyDeep);
+    background-image:
+      radial-gradient(circle at 15% 10%, rgba(212,175,106,0.06), transparent 40%),
+      radial-gradient(circle at 85% 90%, rgba(74,155,127,0.06), transparent 40%);
+    color: var(--cream);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    padding: 2.5rem 1.5rem 4rem;
+  }
+
+  .wrap { max-width: 1100px; margin: 0 auto; }
+
+  /* Header */
+  header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .shield {
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
+  }
+
+  h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+
+  .tagline {
+    color: var(--creamDim);
+    font-size: 0.92rem;
+    margin: 0.35rem 0 2.5rem 58px;
+    max-width: 520px;
+    line-height: 1.5;
+  }
+
+  /* Layout */
+  .console {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+  @media (max-width: 860px) {
+    .console { grid-template-columns: 1fr; }
+  }
+
+  .panel {
+    background: var(--navyCard);
+    border: 1px solid var(--navyLine);
+    border-radius: 20px;
+    padding: 1.75rem;
+  }
+
+  .panelLabel {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1.3rem;
+  }
+
+  /* Form */
+  .field { margin-bottom: 1rem; }
+  .field label {
+    display: block;
+    font-size: 0.78rem;
+    color: var(--creamDim);
+    margin-bottom: 0.4rem;
+  }
+  .fieldRow { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+
+  select, input[type="number"], input[type="text"] {
+    width: 100%;
+    background: var(--navyDeep);
+    border: 1px solid var(--navyLine);
+    border-radius: 10px;
+    padding: 0.65rem 0.8rem;
+    color: var(--cream);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.88rem;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  select:focus, input:focus { border-color: var(--gold); }
+
+  .scanBtn {
+    width: 100%;
+    margin-top: 0.6rem;
+    padding: 0.85rem;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--gold), var(--goldBright));
+    color: var(--navyDeep);
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .scanBtn:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(212,175,106,0.25); }
+  .scanBtn:active { transform: translateY(0); }
+  .scanBtn:disabled { opacity: 0.6; cursor: default; transform: none; }
+
+  .presets {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1.4rem;
+    flex-wrap: wrap;
+  }
+  .presetBtn {
+    flex: 1;
+    min-width: 120px;
+    background: transparent;
+    border: 1px solid var(--navyLine);
+    color: var(--creamDim);
+    border-radius: 10px;
+    padding: 0.55rem 0.6rem;
+    font-size: 0.76rem;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .presetBtn:hover { border-color: var(--gold); color: var(--gold); }
+
+  /* Result panel */
+  .resultPanel { display: flex; flex-direction: column; align-items: center; text-align: center; min-height: 380px; }
+
+  .resultEmpty {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--creamDim);
+    font-size: 0.85rem;
+    gap: 0.8rem;
+    opacity: 0.6;
+  }
+
+  .sealWrap {
+    position: relative;
+    width: 140px;
+    height: 140px;
+    margin: 0.5rem 0 1.3rem;
+  }
+
+  .seal {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid;
+    transform: scale(0.4) rotate(-25deg);
+    opacity: 0;
+    animation: stamp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+  @keyframes stamp {
+    60% { transform: scale(1.08) rotate(2deg); opacity: 1; }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+  }
+
+  .seal.safe { border-color: var(--safe); box-shadow: 0 0 30px rgba(74,155,127,0.25); }
+  .seal.danger { border-color: var(--danger); box-shadow: 0 0 30px rgba(226,114,91,0.25); }
+  .seal.medium { border-color: var(--gold); box-shadow: 0 0 30px rgba(212,175,106,0.25); }
+
+  .sealVerdict {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 1.05rem;
+    letter-spacing: 0.06em;
+  }
+  .seal.safe .sealVerdict { color: var(--safe); }
+  .seal.danger .sealVerdict { color: var(--danger); }
+  .seal.medium .sealVerdict { color: var(--gold); }
+
+  .sealScore {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-top: 0.2rem;
+  }
+
+  .resultDetails { width: 100%; text-align: left; }
+
+  .explanation {
+    font-size: 0.86rem;
+    line-height: 1.55;
+    color: var(--cream);
+    background: var(--navyDeep);
+    border: 1px solid var(--navyLine);
+    border-radius: 12px;
+    padding: 0.9rem 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .scoreRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.82rem;
+    padding: 0.55rem 0;
+    border-bottom: 1px solid var(--navyLine);
+  }
+  .scoreRow:last-child { border-bottom: none; }
+  .scoreRow .label { color: var(--creamDim); }
+  .scoreRow .val { font-family: 'JetBrains Mono', monospace; font-weight: 600; }
+
+  .flagsTitle {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--creamDim);
+    margin: 1rem 0 0.6rem;
+  }
+  .flag {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.6rem;
+    padding: 0.6rem 0.75rem;
+    background: var(--navyDeep);
+    border: 1px solid var(--navyLine);
+    border-left: 3px solid var(--gold);
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+    font-size: 0.8rem;
+  }
+  .flag.high { border-left-color: var(--danger); }
+  .flag.medium { border-left-color: var(--gold); }
+  .flag.low { border-left-color: var(--creamDim); }
+  .flagDesc { color: var(--creamDim); line-height: 1.4; }
+  .flagName { font-family: 'JetBrains Mono', monospace; font-weight: 600; white-space: nowrap; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; }
+
+  .noFlags {
+    font-size: 0.82rem;
+    color: var(--creamDim);
+    font-style: italic;
+    padding: 0.5rem 0;
+  }
+
+  .loading { color: var(--gold); animation: pulse 1.2s ease-in-out infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+
+  .errorBox {
+    color: var(--danger);
+    font-size: 0.85rem;
+    padding: 0.8rem 1rem;
+    background: rgba(226,114,91,0.08);
+    border: 1px solid var(--danger);
+    border-radius: 10px;
+    margin-top: 1rem;
+  }
+
+  footer {
+    text-align: center;
+    color: var(--creamDim);
+    font-size: 0.75rem;
+    margin-top: 3rem;
+    opacity: 0.6;
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <svg class="shield" viewBox="0 0 48 48" fill="none">
+      <path d="M24 4L40 10V22C40 32.5 33.2 41.3 24 44C14.8 41.3 8 32.5 8 22V10L24 4Z" stroke="#D4AF6A" stroke-width="2" fill="rgba(212,175,106,0.08)"/>
+      <path d="M17 24L21.5 28.5L31 18" stroke="#D4AF6A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <h1>Afia Pay! Fraud Screening Console</h1>
+  </header>
+  <p class="tagline">
+    Submit a mobile money transaction below and watch it get screened live;
+    combining explainable rule checks with a trained ML model, the same way
+    it runs inside the actual API.
+  </p>
+
+  <div class="console">
+
+    <!-- Input panel -->
+    <div class="panel">
+      <div class="panelLabel">Transaction Details</div>
+
+      <div class="fieldRow">
+        <div class="field">
+          <label>Type</label>
+          <select id="type">
+            <option value="PAYMENT">PAYMENT</option>
+            <option value="TRANSFER">TRANSFER</option>
+            <option value="CASH_OUT">CASH_OUT</option>
+            <option value="CASH_IN">CASH_IN</option>
+            <option value="DEBIT">DEBIT</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Amount (₵)</label>
+          <input type="number" id="amount" value="350">
+        </div>
+      </div>
+
+      <div class="fieldRow">
+        <div class="field">
+          <label>Sender balance : before</label>
+          <input type="number" id="oldBalanceOrig" value="8000">
+        </div>
+        <div class="field">
+          <label>Sender balance : after</label>
+          <input type="number" id="newBalanceOrig" value="7650">
+        </div>
+      </div>
+
+      <div class="fieldRow">
+        <div class="field">
+          <label>Recipient balance : before</label>
+          <input type="number" id="oldBalanceDest" value="20000">
+        </div>
+        <div class="field">
+          <label>Recipient balance : after</label>
+          <input type="number" id="newBalanceDest" value="20350">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Sender account ID</label>
+        <input type="text" id="nameOrig" value="C555">
+      </div>
+      <div class="field">
+        <label>Recipient account ID</label>
+        <input type="text" id="nameDest" value="M100">
+      </div>
+
+      <button class="scanBtn" id="scanBtn" onclick="screenTransaction()">🛡 Scan Transaction</button>
+
+      <div class="presets">
+        <button class="presetBtn" onclick="loadPreset('normal')">Normal</button>
+        <button class="presetBtn" onclick="loadPreset('obvious')">Obvious Fraud</button>
+        <button class="presetBtn" onclick="loadPreset('subtle')">Subtle Fraud</button>
+      </div>
+
+      <div id="errorBox"></div>
+    </div>
+
+    <!-- Result panel -->
+    <div class="panel resultPanel" id="resultPanel">
+      <div class="resultEmpty" id="resultEmpty">
+        <svg width="36" height="36" viewBox="0 0 48 48" fill="none" opacity="0.4">
+          <path d="M24 4L40 10V22C40 32.5 33.2 41.3 24 44C14.8 41.3 8 32.5 8 22V10L24 4Z" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+        <span>Scan a transaction to see the result here</span>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>Afia Pay Fraud Detection API; portfolio project · rules + ML screening demo</footer>
+</div>
+
+<script>
+  const apiUrl = "http://127.0.0.1:8000/api/v1/screen";
+
+  const presets = {
+    normal: {
+      type: "PAYMENT", amount: 350,
+      nameOrig: "C555", oldBalanceOrig: 8000, newBalanceOrig: 7650,
+      nameDest: "M100", oldBalanceDest: 20000, newBalanceDest: 20350
+    },
+    obvious: {
+      type: "CASH_OUT", amount: 499999,
+      nameOrig: "C111", oldBalanceOrig: 500000, newBalanceOrig: 1,
+      nameDest: "C222", oldBalanceDest: 0, newBalanceDest: 0
+    },
+    subtle: {
+      type: "TRANSFER", amount: 70000,
+      nameOrig: "C777", oldBalanceOrig: 100000, newBalanceOrig: 30000,
+      nameDest: "C888", oldBalanceDest: 500, newBalanceDest: 70500
+    }
+  };
+
+  function loadPreset(key) {
+    const p = presets[key];
+    document.getElementById("type").value = p.type;
+    document.getElementById("amount").value = p.amount;
+    document.getElementById("nameOrig").value = p.nameOrig;
+    document.getElementById("oldBalanceOrig").value = p.oldBalanceOrig;
+    document.getElementById("newBalanceOrig").value = p.newBalanceOrig;
+    document.getElementById("nameDest").value = p.nameDest;
+    document.getElementById("oldBalanceDest").value = p.oldBalanceDest;
+    document.getElementById("newBalanceDest").value = p.newBalanceDest;
+  }
+
+  function severityRank(sev) {
+    return { high: 0, medium: 1, low: 2 }[sev] ?? 3;
+  }
+
+  async function screenTransaction() {
+    const btn = document.getElementById("scanBtn");
+    const errorBox = document.getElementById("errorBox");
+    const resultPanel = document.getElementById("resultPanel");
+
+    errorBox.innerHTML = "";
+    btn.disabled = true;
+    btn.textContent = "Scanning...";
+    resultPanel.innerHTML = '<div class="resultEmpty loading">Screening transaction...</div>';
+
+    const payload = {
+      step: 1,
+      type: document.getElementById("type").value,
+      amount: Number(document.getElementById("amount").value),
+      nameOrig: document.getElementById("nameOrig").value,
+      oldBalanceOrig: Number(document.getElementById("oldBalanceOrig").value),
+      newBalanceOrig: Number(document.getElementById("newBalanceOrig").value),
+      nameDest: document.getElementById("nameDest").value,
+      oldBalanceDest: Number(document.getElementById("oldBalanceDest").value),
+      newBalanceDest: Number(document.getElementById("newBalanceDest").value),
+    };
+
+    try {
+      const res = await fetch(apiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => null);
+        throw new Error(errData?.detail ? JSON.stringify(errData.detail) : `Request failed (${res.status})`);
+      }
+
+      const data = await res.json();
+      renderResult(data);
+    } catch (err) {
+      resultPanel.innerHTML = `
+        <div class="resultEmpty">
+          <span>Couldn't reach the API</span>
+        </div>`;
+      errorBox.innerHTML = `<div class="errorBox">⚠️ ${err.message}. Is the server running at 127.0.0.1:8000?</div>`;
+    } finally {
+      btn.disabled = false;
+      btn.textContent = "🛡 Scan Transaction";
+    }
+  }
+
+  function renderResult(data) {
+    const resultPanel = document.getElementById("resultPanel");
+    const sealClass = data.riskLevel === "high" ? "danger" : data.riskLevel === "medium" ? "medium" : "safe";
+    const verdict = data.isFlagged ? "FLAGGED" : "CLEARED";
+    const scorePct = Math.round(data.riskScore * 100);
+
+    const sortedFlags = [...data.ruleFlags].sort((a, b) => severityRank(a.severity) - severityRank(b.severity));
+
+    const flagsHtml = sortedFlags.length > 0
+      ? sortedFlags.map(f => `
+          <div class="flag ${f.severity}">
+            <div>
+              <div class="flagName">${f.rule.replaceAll('_', ' ')}</div>
+              <div class="flagDesc">${f.description}</div>
+            </div>
+          </div>`).join("")
+      : `<div class="noFlags">No rules triggered on this transaction.</div>`;
+
+    resultPanel.innerHTML = `
+      <div class="panelLabel" style="align-self:flex-start;">Scan Result</div>
+
+      <div class="sealWrap">
+        <div class="seal ${sealClass}">
+          <div class="sealVerdict">${verdict}</div>
+          <div class="sealScore">${scorePct}%</div>
+        </div>
+      </div>
+
+      <div class="resultDetails">
+        <div class="explanation">${data.explanation}</div>
+
+        <div class="scoreRow">
+          <span class="label">Rule-based signal</span>
+          <span class="val">${data.ruleFlags.length} rule${data.ruleFlags.length !== 1 ? "s" : ""} triggered</span>
+        </div>
+        <div class="scoreRow">
+          <span class="label">ML model score</span>
+          <span class="val">${data.mlScore !== null ? Math.round(data.mlScore * 100) + "%" : "not loaded"}</span>
+        </div>
+        <div class="scoreRow">
+          <span class="label">Combined risk score</span>
+          <span class="val">${scorePct}%</span>
+        </div>
+
+        <div class="flagsTitle">Rule Flags</div>
+        ${flagsHtml}
+      </div>
+    `;
+  }
+</script>
+
+</body>
+</html>
