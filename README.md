@@ -63,7 +63,7 @@ like Vercel which don't fit a service carrying a trained ML model well.
    from `http://127.0.0.1:8000/api/v1/screen` to your live Render URL
 
 **Note on Render's free tier:** the service spins down after 15 minutes of
-inactivity and takes ~30-60 seconds to wake back up on the next request —
+inactivity and takes ~30-60 seconds to wake back up on the next request 
 completely normal for a free tier, just means the very first request after
 a period of inactivity will feel slow. Fine for a portfolio piece; a paid
 tier removes this if it's ever needed for something more serious.
@@ -74,12 +74,12 @@ tier removes this if it's ever needed for something more serious.
 2. Open `frontend/index.html` directly in your browser (just double-click it)
 3. Use the "Normal" / "Obvious Fraud" / "Subtle Fraud" preset buttons to fill in
    a realistic example, or type in your own transaction
-4. Click "Scan Transaction" and watch the security seal stamp the verdict —
+4. Click "Scan Transaction" and watch the security seal stamp the verdict 
    green "CLEARED" or red "FLAGGED," with the exact rule flags and ML score
    that fired
 
 This is a single static HTML file (no build step, no separate frontend
-server) that calls your locally-running API directly — the API's CORS
+server) that calls your locally-running API directly  the API's CORS
 settings already allow this.
 
 ### A note on the training data
