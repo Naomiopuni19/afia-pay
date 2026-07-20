@@ -1,9 +1,9 @@
-# Afia Pay — Mobile Money Fraud Detection API
+# Afia Pay : Mobile Money Fraud Detection API
 
 A FastAPI service that screens mobile money transactions for fraud, combining
 **rule-based detection** (fast, explainable, auditable) with a **trained
 machine learning model** trained on the [PaySim
-dataset](https://www.kaggle.com/datasets/ealaxi/paysim1) — a synthetic
+dataset](https://www.kaggle.com/datasets/ealaxi/paysim1)  a synthetic
 dataset modeled specifically on mobile money systems like M-Pesa.
 
 Built as a portfolio project demonstrating fintech fraud detection concepts:
@@ -12,9 +12,9 @@ API, and how to structure a production-shaped FastAPI service.
 
 ## API design: camelCase JSON, idiomatic Python underneath
 
-The Python code follows standard Python convention (snake_case — see
+The Python code follows standard Python convention (snake_case ; see
 [PEP 8](https://peps.python.org/pep-0008/)) throughout the codebase, but
-the actual JSON API — request bodies, responses, everything in `/docs` —
+the actual JSON API request bodies, responses, everything in `/docs` —
 uses camelCase (`nameOrig`, `riskScore`, etc.), matching typical JavaScript/
 frontend API conventions. This is handled with Pydantic's `alias_generator`
 (see `app/models/transaction.py`), not by renaming Python variables — a
@@ -27,7 +27,7 @@ Rules catch known fraud patterns instantly and can be explained to a
 compliance officer in one sentence ("flag any transaction that drains 99%+
 of an account's balance"). ML catches subtler patterns a human wouldn't
 think to write a rule for, but is harder to audit. Real fraud systems use
-both — rules as a fast, transparent first line, ML as a second layer for
+both rules as a fast, transparent first line, ML as a second layer for
 what rules miss. This project deliberately keeps the two systems as
 separate, swappable pieces (see `app/services/rule_engine.py` and
 `app/services/ml_model.py`) that get combined in `screening_service.py`.
@@ -41,21 +41,21 @@ separate, swappable pieces (see `app/services/rule_engine.py` and
 
 ## Deployment (Render)
 
-This API is deployed on [Render](https://render.com)'s free tier —
+This API is deployed on [Render](https://render.com)'s free tier 
 straightforward for a Python/FastAPI service, unlike serverless platforms
 like Vercel which don't fit a service carrying a trained ML model well.
 
 **To deploy your own copy:**
 
 1. Push this project to its own GitHub repository (separate from any other
-   project — Afia Pay isn't part of the bakery site's repo)
+   project  Afia Pay isn't part of the bakery site's repo)
 2. Go to [render.com](https://render.com) → sign up with GitHub
 3. **New** → **Web Service** → connect the repository
 4. Render should auto-detect the `render.yaml` blueprint in this repo and
    fill in the build/start commands automatically. If not, set manually:
    - **Build command:** `pip install -r requirements.txt`
    - **Start command:** `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
-5. Click **Create Web Service** — first deploy takes a few minutes
+5. Click **Create Web Service** first deploy takes a few minutes
 6. Once live, your API is reachable at `https://your-service-name.onrender.com`
 7. Visit `https://your-service-name.onrender.com/docs` to confirm it's working
 8. **Update the demo frontend** — open `frontend/index.html`, find the
@@ -86,7 +86,7 @@ settings already allow this.
 
 The model is trained on a **synthetic dataset generated to mirror the real
 PaySim dataset's statistical structure** (transaction type mix, fraud rate,
-fraud-only-in-TRANSFER/CASH_OUT pattern) — not the actual downloaded PaySim
+fraud-only-in-TRANSFER/CASH_OUT pattern)  not the actual downloaded PaySim
 file. See `scripts/generate_dataset.py` for exactly how and why each
 statistic was chosen to match the real dataset's published characteristics.
 
@@ -96,9 +96,9 @@ statistic was chosen to match the real dataset's published characteristics.
 |---|---|---|
 | ROC-AUC | 0.996 | Near-perfect at ranking fraud above legitimate transactions |
 | Recall (fraud) | 82% | Catches the large majority of real fraud in the test set |
-| Precision (fraud) | 14% | Most flags turn out to be false alarms — see below |
+| Precision (fraud) | 14% | Most flags turn out to be false alarms  see below |
 
-That precision number is not a flaw — it's the realistic trade-off for
+That precision number is not a flaw  it's the realistic trade-off for
 extremely rare-event detection. With fraud this uncommon, prioritizing
 recall (catching real fraud) necessarily means accepting more false
 positives, since missing fraud is typically far costlier than a false
@@ -108,7 +108,7 @@ precision instead would catch almost no fraud at all.
 **Concrete proof the ML layer adds value beyond the rules:** a transaction
 that drains 70% of an account's balance (below the rules' 99%
 `full_balance_drain` threshold, so **zero rules fire**) still gets flagged
-by the model with a 77% fraud probability — a pattern the rule engine
+by the model with a 77% fraud probability a pattern the rule engine
 alone would have completely missed.
 
 ## Running locally
@@ -130,7 +130,7 @@ python -m pytest tests/ -v
 ## Regenerating the dataset / retraining the model
 
 The trained model is included in `models/fraud_model.joblib`, so you
-don't need to do this to run the API — but if you want to regenerate
+don't need to do this to run the API  but if you want to regenerate
 the data or retrain from scratch:
 
 ```bash
@@ -178,8 +178,8 @@ tests/
 
 | Rule | What it catches |
 |---|---|
-| `full_balance_drain` | Sender empties 99%+ of their balance in one transaction — classic account takeover |
+| `full_balance_drain` | Sender empties 99%+ of their balance in one transaction  classic account takeover |
 | `balance_inconsistency` | Reported balances don't match the transaction amount |
-| `dest_balance_unchanged` | Recipient balance doesn't move despite a nonzero transfer — cash-out through an unrecorded channel |
+| `dest_balance_unchanged` | Recipient balance doesn't move despite a nonzero transfer  cash-out through an unrecorded channel |
 | `large_amount` | Transaction exceeds a configurable large-amount threshold |
 | `self_transfer` | Sender and recipient are the same account |
