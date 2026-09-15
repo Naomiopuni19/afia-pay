@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routers import screening
+from app.routers import screening, auth, transactions
 
 app = FastAPI(
     title="Afia Pay Fraud Detection API",
@@ -23,6 +23,8 @@ app.add_middleware(
 )
 
 app.include_router(screening.router)
+app.include_router(auth.router)
+app.include_router(transactions.router)
 
 
 @app.get("/", tags=["health"])

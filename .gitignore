@@ -5,3 +5,5 @@ venv/
 .venv/
 *.egg-info/
 .env
+
+.env
